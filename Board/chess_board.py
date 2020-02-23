@@ -113,13 +113,20 @@ class Board(object):
             self.w_king = self.board[4][0]
             self.b_king = self.board[4][7]
 
-    def present_movesets(self, turn='white'):
+    def present_movesets(self, opponent_movesets, turn='white'):
         """
         Analyzes all possible movesets and presents them to player
         """
         pieces_avail = self.pieces_in_play[turn]
         all_possible_moves = []
         for piece in pieces_avail:
+
+            # Kings require special logic, as their moveset is dependent
+            # on the moveset of the opponent's pices (cannot place self
+            # in check)
+            if piece.name == 'King':
+                pass
+
             moveset = piece.generate_moveset(self.pieces_in_play)
             all_possible_moves.extend([(piece, move) for move in moveset])
 
