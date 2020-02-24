@@ -4,6 +4,7 @@ Classes to define specific pieces on chess board and their movement sets
 Peter J. Thomas
 """
 import itertools
+import pdb
 
 # Custom Modules
 from display import Color, PieceDisplay, Characters
@@ -50,11 +51,15 @@ class King(Piece):
 
         # Filter for spots already occuptied by a piece owned by player
         player_piece_coords = pieces_in_play[self.owner]
-        moveset = filter(lambda x: x != (p_coord for p_coord in player_piece_coords), moveset)
+        moveset = list(filter(lambda x: x != (p_coord for p_coord in player_piece_coords), moveset))
 
         # Filter spots threatened by the other player's pieces (can't place king in check)
         for (_, threatened_spaces) in opponent_movesets:
-            moveset = filter(lambda x: x not in threatened_spaces, moveset)
+            moveset = list(filter(lambda x: x not in threatened_spaces, moveset))
+
+        # Filter for moves outside board space
+        moveset = list(filter(lambda pos: pos[0] < WIDTH and pos[0] >= 0 \
+                         and pos[1] < HEIGHT and pos[1] >= 0, moveset))
 
         return moveset
 
@@ -98,12 +103,14 @@ class Knight(Piece):
         # Filter for illegal moves (For knights, we don't have to account for collision)
 
         # Filter for moves outside board space
-        moveset = filter(lambda pos: pos[0] < WIDTH and pos[0] > 0 and pos[1] < HEIGHT and pos[0] > 0, moveset)
+        moveset = list(filter(lambda pos: pos[0] < WIDTH and pos[0] >= 0 \
+                              and pos[1] < HEIGHT and pos[1] >= 0, moveset))
 
         # Filter for spots already occupied by a piece owned by player
         owner_pieces = pieces_in_play[self.owner]
+
         occupied_player_spaces = [piece.position for piece in owner_pieces]
-        moveset = filter(lambda pos: pos != (grid_space for grid_space in occupied_player_spaces), moveset)
+        moveset = list(filter(lambda pos: pos not in occupied_player_spaces, moveset))
 
         return moveset
 
@@ -181,8 +188,8 @@ class Bishop(Piece):
         moveset = diag1 + diag2 + diag3 + diag4
 
         # Filter for moves outside board space
-        moveset = filter(lambda pos: pos[0] < WIDTH and pos[0] > 0 \
-                         and pos[1] < HEIGHT and pos[0] > 0, moveset)
+        moveset = list(filter(lambda pos: pos[0] < WIDTH and pos[0] >= 0 \
+                         and pos[1] < HEIGHT and pos[1] >= 0, moveset))
 
         return moveset
 
@@ -259,8 +266,8 @@ class Rook(Piece):
         moveset = hz_axis1 + hz_axis2 + vt_axis1 + vt_axis2
 
         # Filter for moves that would place piece off board
-        moveset = filter(lambda pos: pos[0] < WIDTH and pos[0] > 0 \
-                          and pos[1] < HEIGHT and pos[0] > 0, moveset)
+        moveset = list(filter(lambda pos: pos[0] < WIDTH and pos[0] >= 0 \
+                          and pos[1] < HEIGHT and pos[1] >= 0, moveset))
 
         return moveset
 
@@ -382,8 +389,8 @@ class Queen(Piece):
         moveset = moveset + hz_axis1 + hz_axis2 + vt_axis1 + vt_axis2
 
         # Filter for moves outside board space
-        moveset = filter(lambda pos: pos[0] < WIDTH and pos[0] > 0 \
-                         and pos[1] < HEIGHT and pos[0] > 0, moveset)
+        moveset = list(filter(lambda pos: pos[0] < WIDTH and pos[0] >= 0 \
+                         and pos[1] < HEIGHT and pos[1] >= 0, moveset))
 
         return moveset
 
@@ -474,7 +481,8 @@ class Pawn(Piece):
                 moveset.pop(idx)
 
         # Filter for moves outside board space
-        moveset = filter(lambda pos: pos[0] < WIDTH and pos[0] > 0 and pos[1] < HEIGHT and pos[0] > 0)
+        moveset = list(filter(lambda pos: pos[0] < WIDTH and pos[0] >= 0 and \
+                         pos[1] < HEIGHT and pos[1] >= 0, moveset))
 
         return moveset
 
