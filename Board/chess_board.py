@@ -1,4 +1,5 @@
 import numpy as np
+import pdb
 
 # USER MODULES
 from pieces import Piece, Pawn, Bishop, Knight, Rook, Queen, King
@@ -94,7 +95,7 @@ class Board(object):
                ],
            ]
 
-        self.display_board = []
+        self.char_board = []
         for row in self.board:
             disp_row = []
             for piece in row:
@@ -102,7 +103,7 @@ class Board(object):
                     disp_row.append(piece.cli_characterset)
                 else:
                     disp_row.append(None)
-            self.display_board.append(disp_row)
+            self.char_board.append(disp_row)
 
 
         for i, row in enumerate(self.board):
@@ -125,9 +126,10 @@ class Board(object):
             # on the moveset of the opponent's pices (cannot place self
             # in check)
             if piece.name == 'King':
-                pass
+                piece.generate_moveset(self.pieces_in_play, opponent_movesets)
+            else:
+                moveset = piece.generate_moveset(self.pieces_in_play)
 
-            moveset = piece.generate_moveset(self.pieces_in_play)
             all_possible_moves.extend([(piece, move) for move in moveset])
 
         return all_possible_moves
@@ -144,15 +146,33 @@ class Board(object):
         Have the player choose a move to take
         """
         choice_idx = ascii_delimiter
+        mod = None
         choice_dict = {}
         for (piece, dest_space) in moveset:
             curr_position_in_grid = convert_int_to_grid_coords(piece.position)
             dest_space_in_grid = convert_int_to_grid_coords(dest_space)
-            print("{0}) {1} {2} -> {3}".format(chr(choice_idx),
-                                               piece.name,
-                                               curr_position_in_grid,
-                                               dest_space_in_grid))
-            choice_dict[chr(choice_idx)] = (piece, dest_space)
+            if mod:
+                print("{0}) {1} {2} -> {3}".format(chr(mod) + chr(choice_idx),
+                                                   piece.name,
+                                                   curr_position_in_grid,
+                                                   dest_space_in_grid))
+            else:
+                print("{0}) {1} {2} -> {3}".format(chr(choice_idx),
+                                                   piece.name,
+                                                   curr_position_in_grid,
+                                                   dest_space_in_grid))
+            if mod:
+                choice_dict[chr(mod) + chr(choice_idx)] = (piece, dest_space)
+            else:
+                choice_dict[chr(choice_idx)] = (piece, dest_space)
+            choice_idx += 1
+            if (choice_idx - ascii_delimiter) > 25 and not mod:
+                choice_idx = ascii_delimiter
+                mod = ascii_delimiter
+            elif (choice_idx - ascii_delimiter) > 25:
+                choice_idx = ascii_delimiter
+                mod += 1
+
 
         # Have the player choose their move of choice based on index
         while True:
@@ -160,6 +180,8 @@ class Board(object):
 
             try:
                 move = choice_dict[chosen_idx.lower()]
+                return move
+
             except KeyError:
                 print("Error: Input not recognized")
                 print("Try Again")
@@ -189,11 +211,12 @@ class Board(object):
         self.populate_board()
 
         # print initial state of board
-        display_board(self.display_board, index=True)
+        display_board(self.char_board, index=True)
 
         # Initialize game
         checkmate = False
         turn = None
+        opponent_movesets = []
         while not checkmate:
 
             # Switch to next player's turn
@@ -207,7 +230,7 @@ class Board(object):
                 if piece.name == 'Pawn':
                     self.two_square_advance = False
 
-            movesets = self.present_movesets(turn)
+            movesets = self.present_movesets(opponent_movesets, turn)
 
             if player_color == turn:
                 (piece, dest_grid_space) = self.player_chosen_move(movesets)
@@ -228,6 +251,9 @@ class Board(object):
 
                     # Add to captured pieces dict
                     self.captured_pieces[opponent].append(opp_piece)
+
+                    # Remove from pieces in play dict
+                    self.pieces_in_play[opponent].remove(opp_piece)
                     break
 
             prev_x = piece.position[0]
@@ -244,23 +270,22 @@ class Board(object):
             self.board[curr_x][curr_y] = piece
             self.board[prev_x][prev_y] = None
 
-            self.display_board[curr_x][curr_y] = piece.cli_characterset
-            self.display_board[prev_x][prev_y] = None
+            self.char_board[curr_x][curr_y] = piece.cli_characterset
+            self.char_board[prev_x][prev_y] = None
 
             piece.position = dest_grid_space
 
             # Print status of board after move
-            display_board(self.disp_board, index=True)
+            display_board(self.char_board, index=True)
 
             # Generate the new moveset for the moved piece so that we
             # can check whether or not the move places the opposing king
             # in checkmate
             new_moveset = piece.generate_moveset(self.pieces_in_play)
 
-            # Don't need to replace the old moveset for the piece we moved
-            # (if that moveset didn't place the King in checkmate before,
-            #  it won't now!)
+            # Replace old moveset in movesets
             movesets.append(new_moveset)
+            movesets.remove((piece, dest_grid_space))
 
             # Check to see if the king of the player whose turn it is
             # has been placed in checkmate
@@ -268,6 +293,8 @@ class Board(object):
                                                                         movesets)
             else: checkmate = self.b_king.check_checkmate(self.pieces_in_play,
                                                           movesets)
+
+            opponent_movesets = movesets
 
         print("Checkmate! {} Has won!".format(turn))
         if turn == player_color: print("Congratulations!")
@@ -294,11 +321,11 @@ def convert_int_to_grid_coords(int_coords):
     """
     # Convert x coord to character using ascii encoding
     x_int_coord = int_coords[0]
-    y_int_coord = int_coords[1]
+    y_int_coord = int_coords[1] + 1
     x_grid_coord = chr(ascii_delimiter + x_int_coord)
 
     # y coord stays in integer format, so that's easy
-    grid_coord = x_grid_coord + chr(y_int_coord)
+    grid_coord = x_grid_coord + str(y_int_coord)
 
     return grid_coord
 
