@@ -77,17 +77,24 @@ def display_board(board, flip_board=False, index=False):
     # Print the column indices
     if index:
         col_indices_str = ' '
-        for c in grid_indices_x: col_indices_str = col_indices_str + c
+        if flip_board:
+            for c in reversed(grid_indices_x): col_indices_str = col_indices_str + c
+        else:
+            for c in grid_indices_x: col_indices_str = col_indices_str + c
         print(col_indices_str)
     for i, row in enumerate(reversed(board) if not flip_board else board):
         row_strings = [
             Characters.get(tile, Characters[(Color((i + j) % 2), PieceDisplay.EMPTY)])
-            for j, tile in enumerate(row[::-1] if not flip_board else row)
+            for j, tile in enumerate(row if not flip_board else row[::-1])
         ]
         if index:
             # Add in indices for rows
-            row_strings.insert(0, grid_indices_y[i])
-            row_strings.append(' ' + grid_indices_y[i])
+            if flip_board:
+                row_strings.insert(0, grid_indices_y[i])
+                row_strings.append(' ' + grid_indices_y[i])
+            else:
+                row_strings.insert(0, grid_indices_y[7-i])
+                row_strings.append(' ' + grid_indices_y[7-i])
         print("".join(row_strings))
     if index:
         print(col_indices_str)

@@ -111,8 +111,8 @@ class Board(object):
             self.pieces_in_play['black'].extend([piece for piece in row if i > 5])
 
             # Add reference to the kings for both players
-            self.w_king = self.board[4][0]
-            self.b_king = self.board[4][7]
+            self.w_king = self.board[0][4]
+            self.b_king = self.board[7][4]
 
     def present_movesets(self, opponent_movesets, turn='white'):
         """
@@ -236,6 +236,7 @@ class Board(object):
                 (piece, dest_grid_space) = self.player_chosen_move(movesets)
             else:
                 (piece, dest_grid_space) = self.pick_random_move(movesets)
+                pdb.set_trace()
 
 
             # Check to see if there is an opposing piece at movement position
@@ -267,25 +268,29 @@ class Board(object):
             if piece.name == 'Pawn':
                 piece.two_square_advance = True
 
-            self.board[curr_x][curr_y] = piece
-            self.board[prev_x][prev_y] = None
 
-            self.char_board[curr_x][curr_y] = piece.cli_characterset
-            self.char_board[prev_x][prev_y] = None
+            self.board[curr_y][curr_x] = piece
+            self.board[prev_y][prev_x] = None
+
+            self.char_board[curr_y][curr_x] = piece.cli_characterset
+            self.char_board[prev_y][prev_x] = None
 
             piece.position = dest_grid_space
 
             # Print status of board after move
             display_board(self.char_board, index=True)
 
+
             # Generate the new moveset for the moved piece so that we
             # can check whether or not the move places the opposing king
             # in checkmate
+            pdb.set_trace()
             new_moveset = piece.generate_moveset(self.pieces_in_play)
 
             # Replace old moveset in movesets
-            movesets.append(new_moveset)
+            for move in new_moveset: movesets.append((piece, move))
             movesets.remove((piece, dest_grid_space))
+
 
             # Check to see if the king of the player whose turn it is
             # has been placed in checkmate
