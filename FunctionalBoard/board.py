@@ -9,7 +9,7 @@ class Color(enum.Enum):
     WHITE = 1
     BLACK = 0
 
-class PieceDisplay(enum.Enum):
+class Piece(enum.Enum):
     EMPTY = enum.auto()
     PAWN = enum.auto()
     ROOK = enum.auto()
@@ -19,20 +19,20 @@ class PieceDisplay(enum.Enum):
     QUEEN = enum.auto()
 
 Characters = {
-    (Color.WHITE, PieceDisplay.EMPTY): "\u25F8",
-    (Color.WHITE, PieceDisplay.PAWN): "\u265F",
-    (Color.WHITE, PieceDisplay.ROOK): "\u265C",
-    (Color.WHITE, PieceDisplay.KNIGHT): "\u265E",
-    (Color.WHITE, PieceDisplay.BISHOP): "\u265D",
-    (Color.WHITE, PieceDisplay.KING): "\u265A",
-    (Color.WHITE, PieceDisplay.QUEEN): "\u265B",
-    (Color.BLACK, PieceDisplay.EMPTY): "\u25FC",
-    (Color.BLACK, PieceDisplay.PAWN): "\u2659",
-    (Color.BLACK, PieceDisplay.ROOK): "\u2656",
-    (Color.BLACK, PieceDisplay.KNIGHT): "\u2658",
-    (Color.BLACK, PieceDisplay.BISHOP): "\u2657",
-    (Color.BLACK, PieceDisplay.KING): "\u2654",
-    (Color.BLACK, PieceDisplay.QUEEN): "\u2655",
+    (Color.WHITE, Piece.EMPTY): "\u25F8",
+    (Color.WHITE, Piece.PAWN): "\u265F",
+    (Color.WHITE, Piece.ROOK): "\u265C",
+    (Color.WHITE, Piece.KNIGHT): "\u265E",
+    (Color.WHITE, Piece.BISHOP): "\u265D",
+    (Color.WHITE, Piece.KING): "\u265A",
+    (Color.WHITE, Piece.QUEEN): "\u265B",
+    (Color.BLACK, Piece.EMPTY): "\u25FC",
+    (Color.BLACK, Piece.PAWN): "\u2659",
+    (Color.BLACK, Piece.ROOK): "\u2656",
+    (Color.BLACK, Piece.KNIGHT): "\u2658",
+    (Color.BLACK, Piece.BISHOP): "\u2657",
+    (Color.BLACK, Piece.KING): "\u2654",
+    (Color.BLACK, Piece.QUEEN): "\u2655",
 }
 
 grid_indices_x = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -42,27 +42,27 @@ def board_begin():
     return (
         [
             [
-                (Color.WHITE, PieceDisplay.ROOK),
-                (Color.WHITE, PieceDisplay.KNIGHT),
-                (Color.WHITE, PieceDisplay.BISHOP),
-                (Color.WHITE, PieceDisplay.QUEEN),
-                (Color.WHITE, PieceDisplay.KING),
-                (Color.WHITE, PieceDisplay.BISHOP),
-                (Color.WHITE, PieceDisplay.KNIGHT),
-                (Color.WHITE, PieceDisplay.ROOK),
+                (Color.WHITE, Piece.ROOK),
+                (Color.WHITE, Piece.KNIGHT),
+                (Color.WHITE, Piece.BISHOP),
+                (Color.WHITE, Piece.QUEEN),
+                (Color.WHITE, Piece.KING),
+                (Color.WHITE, Piece.BISHOP),
+                (Color.WHITE, Piece.KNIGHT),
+                (Color.WHITE, Piece.ROOK),
             ],
-            [(Color.WHITE, PieceDisplay.PAWN) for _ in range(8)],
+            [(Color.WHITE, Piece.PAWN) for _ in range(8)],
             *[[None] * 8 for _ in range(4)],
-            [(Color.BLACK, PieceDisplay.PAWN) for _ in range(8)],
+            [(Color.BLACK, Piece.PAWN) for _ in range(8)],
             [
-                (Color.BLACK, PieceDisplay.ROOK),
-                (Color.BLACK, PieceDisplay.KNIGHT),
-                (Color.BLACK, PieceDisplay.BISHOP),
-                (Color.BLACK, PieceDisplay.QUEEN),
-                (Color.BLACK, PieceDisplay.KING),
-                (Color.BLACK, PieceDisplay.BISHOP),
-                (Color.BLACK, PieceDisplay.KNIGHT),
-                (Color.BLACK, PieceDisplay.ROOK),
+                (Color.BLACK, Piece.ROOK),
+                (Color.BLACK, Piece.KNIGHT),
+                (Color.BLACK, Piece.BISHOP),
+                (Color.BLACK, Piece.QUEEN),
+                (Color.BLACK, Piece.KING),
+                (Color.BLACK, Piece.BISHOP),
+                (Color.BLACK, Piece.KNIGHT),
+                (Color.BLACK, Piece.ROOK),
             ],
         ]
     )
@@ -84,7 +84,7 @@ def display_board(board, flip_board=False, index=False):
         print(col_indices_str)
     for i, row in enumerate(reversed(board) if not flip_board else board):
         row_strings = [
-            Characters.get(tile, Characters[(Color((i + j) % 2), PieceDisplay.EMPTY)])
+            Characters.get(tile, Characters[(Color((i + j) % 2), Piece.EMPTY)])
             for j, tile in enumerate(row if not flip_board else row[::-1])
         ]
         if index:
